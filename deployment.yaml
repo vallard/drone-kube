@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: pipeline-registry
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: pipeline-registry
+    spec:
+      containers:
+      - name: pipeline-registry
+        image: vallard/pipeline-registry:{{ build.number }}
+        env:
+        - name: PIPELINE_REGISTRY
+          value: registry.cluster.local
+        ports:
+        - containerPort: 3000
