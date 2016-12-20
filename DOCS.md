@@ -8,15 +8,7 @@ kubectl set image deploy/nginx-deployment nginx=nginx:sometag
 ```yaml
 pipeline:
   kube:
-    image: vallard/drone-kube
-    namespace: default
-    name: hottub
-    containers: 
-    	- name: hottub
-    	  image: jamesbrown/hottub:{{BUILD_ID}}
-    	- name: healthz
-    	  image: some/example:{{BUILD_ID}}
-   
+    template: deployment.yaml
 ```
 ## Secrets
 The kube

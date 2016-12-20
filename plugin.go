@@ -8,9 +8,13 @@ import (
 	"time"
 
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
+	"k8s.io/client-go/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	utilyaml "k8s.io/kubernetes/pkg/util/yaml"
 )
 
 type (
@@ -72,8 +76,7 @@ func (p Plugin) Exec() error {
 	}
 
 	// connect to Kubernetes
-	//clientset, err := p.createKubeClient()
-	_, err := p.createKubeClient()
+	clientset, err := p.createKubeClient()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -83,7 +86,20 @@ func (p Plugin) Exec() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(txt)
+	// convert txt back to []byte and convert to json
+	json, err := utilyaml.ToJSON([]byte(txt))
+	if err != nil {
+		return err
+	}
+
+	var dep v1beta1.Deployment
+
+	e := runtime.DecodeInto(api.Codecs.UniversalDecoder(), json, &dep)
+	fmt.Printf("%T\n %[1]v\n", e)
+	// create or update interface
+	// https://godoc.org/k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset/typed/core/internalversion#PodInterface
+	//clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Create(
+	err = listDeployments(clientset, p)
 	return err
 }
 
