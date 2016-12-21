@@ -100,7 +100,7 @@ func (p Plugin) Exec() error {
 	}
 	// create a deployment, ignore the deployment that it comes back with, just report the
 	// error.
-	_, err := clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+	_, err = clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
 
 	//err = listDeployments(clientset, p)
 	return err
