@@ -98,8 +98,10 @@ func (p Plugin) Exec() error {
 	if e != nil {
 		log.Fatal("Error decoding yaml file to json", e)
 	}
-	// create a deployment
-	dr, err := clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+	// create a deployment, ignore the deployment that it comes back with, just report the
+	// error.
+	_, err := clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+
 	//err = listDeployments(clientset, p)
 	return err
 }
