@@ -13,7 +13,8 @@ Basic example:
 
 ```yaml
 pipeline:
-  kube:
+  deploy:
+  	 image: vallard/drone-kube
     template: deployment.yaml
 ```
 
