@@ -1,10 +1,8 @@
-# DRONE Kube
+# Drone Kube
 
-Kubernetes plugin to update images in deployments
+Drone plugin to update kubernetes deployments
 
 See the [DOC](DOCS.md) file for usage. 
 
-Delete this so it compiles: 
-```
-vendor/k8s.io/kubernetes/vendor
-```
+
+
