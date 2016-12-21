@@ -5,5 +5,5 @@ RUN apk update && \
     ca-certificates && \
   rm -rf /var/cache/apk/*
 
-ADD drone-spark /bin/
+ADD drone-kube /bin/
 ENTRYPOINT ["/bin/drone-kube"]
