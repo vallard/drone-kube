@@ -95,14 +95,16 @@ func (p Plugin) Exec() error {
 	var dep v1beta1.Deployment
 
 	e := runtime.DecodeInto(api.Codecs.UniversalDecoder(), json, &dep)
-	fmt.Printf("%T\n %[1]v\n", e)
-	// create or update interface
-	// https://godoc.org/k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset/typed/core/internalversion#PodInterface
-	//clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Create(
-	err = listDeployments(clientset, p)
+	if e != nil {
+		log.Fatal("Error decoding yaml file to json", e)
+	}
+	// create a deployment
+	dr, err := clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+	//err = listDeployments(clientset, p)
 	return err
 }
 
+// List the deployments
 func listDeployments(clientset *kubernetes.Clientset, p Plugin) error {
 	// docs on this:
 	// https://github.com/kubernetes/client-go/blob/master/pkg/apis/extensions/types.go
