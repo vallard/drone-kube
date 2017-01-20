@@ -98,28 +98,48 @@ func (p Plugin) Exec() error {
 	if e != nil {
 		log.Fatal("Error decoding yaml file to json", e)
 	}
-	// create a deployment, ignore the deployment that it comes back with, just report the
-	// error.
-	_, err = clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+	// check and see if there is a deployment already.  If there is, update it.
+	oldDep, err := findDeployment(dep.ObjectMeta.Name, dep.ObjectMeta.Namespace, clientset)
+	if err != nil {
+		return err
+	}
+	if oldDep.ObjectMeta.Name == dep.ObjectMeta.Name {
+		// update the existing deployment, ignore the deployment that it comes back with
+		_, err = clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Update(&dep)
+		return err
+	}
+	// create the new deployment since this never existed.
+	_, err = clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).Create(&dep)
 
-	//err = listDeployments(clientset, p)
 	return err
 }
 
+func findDeployment(depName string, namespace string, c *kubernetes.Clientset) (v1beta1.Deployment, error) {
+	if namespace == "" {
+		namespace = "default"
+	}
+	var d v1beta1.Deployment
+	deployments, err := listDeployments(c, namespace)
+	if err != nil {
+		return d, err
+	}
+	for _, thisDep := range deployments {
+		if thisDep.ObjectMeta.Name == depName {
+			return thisDep, err
+		}
+	}
+	return d, err
+}
+
 // List the deployments
-func listDeployments(clientset *kubernetes.Clientset, p Plugin) error {
+func listDeployments(clientset *kubernetes.Clientset, namespace string) ([]v1beta1.Deployment, error) {
 	// docs on this:
 	// https://github.com/kubernetes/client-go/blob/master/pkg/apis/extensions/types.go
-	deployments, err := clientset.ExtensionsV1beta1().Deployments(p.Config.Namespace).List(v1.ListOptions{})
+	deployments, err := clientset.ExtensionsV1beta1().Deployments(namespace).List(v1.ListOptions{})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	for _, d := range deployments.Items {
-		fmt.Printf("%T\n", d)
-	}
-	fmt.Printf("There are %d deployments in the '%s' namespace.\n", len(deployments.Items), p.Config.Namespace)
-	return err
-	// create the deployment.
+	return deployments.Items, err
 }
 
 // open up the template and then sub variables in. Handlebar stuff.
