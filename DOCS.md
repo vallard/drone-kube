@@ -5,7 +5,7 @@ This drone kubernetes plugin does the equivalent of:
 kubectl apply -f deployment.yaml
 ```
 
-It is assumed the deployment is already created as it simply runs an update.  No error checking is there to see if it exists yet, so make sure it already exists!  
+If the deployment does not exists, it will be created.
 
 The advantages of this plugin is that the ```deployment.yaml``` file can be a template file.  We are able to substitute values like ```{{ build.number }}``` inside the file so you can update docker image names. 
 
